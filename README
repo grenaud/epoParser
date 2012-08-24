@@ -1,0 +1,36 @@
+/*
+ * epoParser
+ * Date: Aug-24-2012 
+ * Author : Gabriel Renaud gabriel.reno [at sign goes here] gmail.com
+ *
+ */
+
+
+The EPO  (Enredo, Pecan, Ortheus) alignments are a set of genome-wide alignments for various primate species along with ancestral sequence inference. Due to the importance of the ancestral or chimp allele for medical or population genetics as well as human evolution, these alignments can provide vital information for researchers. However, the current format of the EPO alignments renders the extraction of a particular base pair a arduous experience. 
+
+epoParser aims at parsing the high confidence stretches of the EPO alignments and producing a tab delimited output which can be indexed by tabix for quick retrieval of a desired position. The various columns contain the human, ancestral states and various other great apes as well as flags for putative CpG sites and high confidence regions.
+
+Use:
+./epoParser 
+./epoParser options [hsa_emf.index] [fasta index] [name chr]
+
+The [hsa_emf.index] is the human-specific index provided with the EPO alignment. 
+The [fasta index] is the index for the human genome (created by samtools faidx)
+The [name chr] is the name of the chromosome.
+
+Be sure to be consitent with the chromosome naming.
+
+
+Installation:
+tar xvfz gzstream.tgz
+cd gzstream
+make 
+cd ..
+g++ -lm -O3  -lz -o epoParser epoParser.cpp gzstream/gzstream.o
+
+
+
+
+requires
+gzstream:
+www.cs.unc.edu/Research/compgeom/gzstream/
