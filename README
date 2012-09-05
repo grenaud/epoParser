@@ -26,8 +26,8 @@ tar xvfz gzstream.tgz
 cd gzstream
 make 
 cd ..
-g++ -lm -O3  -lz -o epoParser epoParser.cpp gzstream/gzstream.o
 
+make
 
 
 

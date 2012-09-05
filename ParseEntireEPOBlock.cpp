@@ -89,9 +89,9 @@ inline void  processLinesEPO(vector<snpLine> &  previousLines,snpLine & toPrint)
     //checking for CpG 
     //check only ancestors,
     if( (previousLines.back().chrPos+1) == toPrint.chrPos){
-	if( // (previousLines.back().alleleHuman         == 'C' &&
-	    //  toPrint.alleleHuman                      == 'G' ) 
-	    // ||
+	if( (previousLines.back().alleleHuman         == 'C' &&
+	     toPrint.alleleHuman                      == 'G' ) 
+	    ||
 	    (previousLines.back().alleleHumanChimpAnc == 'C' &&
 	     toPrint.alleleHumanChimpAnc              == 'G' ) 
 	    ||	    
