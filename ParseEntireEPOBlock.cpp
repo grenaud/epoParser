@@ -9,115 +9,6 @@
 
 
 
-//names prefixes for the species in EPO aligment 
-string speciesNameHuman="homo_sapiens";
-string speciesNameChimp="pan_troglodytes";
-string speciesNameGorilla="gorilla_gorilla";
-string speciesNameOrang="pongo_abelii";
-string speciesNameAnc="ancestral_sequences";
-
-/**
-   This function formats and prints the information in
-   "toPrint" to the stdout
-	   
-	 
-   @param[in]     toPrint  Struct with the information from the EPO alignment.
-
-*/
-inline void  printsnpLine(snpLine & toPrint){
-    cout<<toPrint.chrName<<"\t"
-	<<toPrint.chrPos<<"\t"
-	<<toPrint.alleleHuman<<"\t"
-	<<toPrint.alleleHumanChimpAnc<<"\t"
-	<<toPrint.alleleChimp<<"\t"
-
-	<<toPrint.alleleGorillaHumanChimpAnc<<"\t"
-	<<toPrint.alleleGorilla<<"\t"
-
-	<<toPrint.alleleOrangGorillaHumanChimpAnc<<"\t"
-	<<toPrint.alleleOrang<<"\t"
-	<<toPrint.cpg<<"\t"
-	<<toPrint.blockFailed<<"\t"
-
-	<<endl;
-
-}
-
-/**
-   This function prints an empty line if the block was not satifactory
-	   
-	 
-   @param[in]     chrName Chromosome in use
-   @param[in]     chrPos Position on the chrName
-
-*/
-void  printEmptyLine(string chrName,
-			    unsigned int chrPos){
-    snpLine toPrint;			
-    toPrint.chrName = chrName;
-    toPrint.chrPos  = chrPos;
-    toPrint.alleleHuman                     = 'N';
-    toPrint.alleleChimp                     = 'N';
-    toPrint.alleleHumanChimpAnc             = 'N';
-    toPrint.alleleGorilla                   = 'N';
-    toPrint.alleleGorillaHumanChimpAnc      = 'N';
-    toPrint.alleleOrang                     = 'N';
-    toPrint.alleleOrangGorillaHumanChimpAnc = 'N';			    
-    toPrint.cpg=false;
-    toPrint.blockFailed=true;
-
-    printsnpLine(toPrint);
-}
-
-
-/**
-   This function detects CpGs and prints an the information provided by the EPO
-   alignment . It will print the line in the vector "previousLines" and push toPrint into 
-   the vector "previousLines".
-	   
-	 
-   @param[in]     previousLines Vector of the previous lines found, this will be printed
-   @param[in]     toPrint Current information, will be printed during the next loop.
-
-*/
-inline void  processLinesEPO(vector<snpLine> &  previousLines,snpLine & toPrint){
-    if(previousLines.back().chrName != toPrint.chrName){
-	cerr << "Wrong chr in EPO"<<endl;
-	exit(1);       
-    }
-
-    //checking for CpG 
-    //check only ancestors,
-    if( (previousLines.back().chrPos+1) == toPrint.chrPos){
-	if( (previousLines.back().alleleHuman         == 'C' &&
-	     toPrint.alleleHuman                      == 'G' ) 
-	    ||
-	    (previousLines.back().alleleHumanChimpAnc == 'C' &&
-	     toPrint.alleleHumanChimpAnc              == 'G' ) 
-	    ||	    
-	    // (previousLines.back().alleleChimp         == 'C' &&
-	    //  toPrint.alleleChimp                      == 'G' )
-	    // ||	   	    
-	    (previousLines.back().alleleGorillaHumanChimpAnc == 'C' &&
-	     toPrint.alleleGorillaHumanChimpAnc              == 'G' )
-	    ||
-	    // (previousLines.back().alleleGorilla       == 'C' &&
-	    //  toPrint.alleleGorilla                    == 'G' )
-	    (previousLines.back().alleleOrangGorillaHumanChimpAnc == 'C' &&
-	     toPrint.alleleOrangGorillaHumanChimpAnc              == 'G' )
-	    ){
-	    previousLines.back().cpg = true;
-	    toPrint.cpg              = true;
-	}															       
-    }
-
-    printsnpLine(previousLines.back());
-
-    previousLines.clear();
-    previousLines.push_back(toPrint);
-}
-
-
 
 /**
    This function parses a given EPO block in a file and prints the contents 
@@ -135,9 +26,9 @@ inline void  processLinesEPO(vector<snpLine> &  previousLines,snpLine & toPrint)
 */
 
 unsigned int parseEntireEPOBlock(string inFile,unsigned int lineSought,unsigned int chrPos,unsigned int chrStart,unsigned int chrEnd,string chrName){
-     ;//= "/mnt/expressions/martin/sequence_db/epo/epo_6_primate_v64/Compara.6_primates_EPO.chrX_1.emf.gz";
-     ; //=1000022;
-     ; //=5039413;
+     // ;//= "/mnt/expressions/martin/sequence_db/epo/epo_6_primate_v64/Compara.6_primates_EPO.chrX_1.emf.gz";
+     // ; //=1000022;
+     // ; //=5039413;
 
     unsigned int lineCounter=0;
     igzstream igzStream;
@@ -200,7 +91,7 @@ unsigned int parseEntireEPOBlock(string inFile,unsigned int lineSought,unsigned 
 			}			
 			
 
-			//Detect human 		       
+			//Detect chimp 		       
 			if( indexChimp!=-1 && starsWith(headerLines[i],speciesNameChimp)){			
 			    validBlock=false;
 			}
@@ -311,30 +202,28 @@ unsigned int parseEntireEPOBlock(string inFile,unsigned int lineSought,unsigned 
 			    toPrint.alleleOrangGorillaHumanChimpAnc = 'N';
 			    toPrint.alleleOrang                     = 'N';
 			}
-			bool printline=true;
 
-			if(toPrint.alleleHuman                     == '-' &&
-			   toPrint.alleleChimp                     == '-' &&
-			   toPrint.alleleHumanChimpAnc             == '-' &&
-			   toPrint.alleleGorilla                   == '-' &&
-			   toPrint.alleleGorillaHumanChimpAnc      == '-' &&
-			   toPrint.alleleOrang                     == '-' &&
-			   toPrint.alleleOrangGorillaHumanChimpAnc == '-'){
-			    //skip
-			}else{
+			// if( (toPrint.alleleChimp                     == '-' && //those, they have inserts in the other species
+			//      toPrint.alleleHumanChimpAnc             == '-' &&
+			//      toPrint.alleleGorilla                   == '-' &&
+			//      toPrint.alleleGorillaHumanChimpAnc      == '-' &&
+			//      toPrint.alleleOrang                     == '-' &&
+			//      toPrint.alleleOrangGorillaHumanChimpAnc == '-' )){
+			//     //skip 
+			// }else{
+
+			if(toPrint.alleleHuman  != '-' ){ //if there is an insert in human, skip it, no point in printing those
 			    toPrint.cpg=false;
 			    if(previousLines.empty()){
 				previousLines.push_back(toPrint);
-			    }else{ //not empty
-				//printEPO
+			    }else{ //not empty				
 				processLinesEPO(previousLines,toPrint);
 			    }
-
-
-			   
 			}
-
-			if(isValidDNA(upper(line[indexHuman]))){
+			    
+			    //			}
+			
+			if(isValidDNA(upper(line[indexHuman]))){ //we only increase the counter for A,C,G,T,N
 			    chrPos++;
 			}
 			    

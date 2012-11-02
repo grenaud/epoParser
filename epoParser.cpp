@@ -21,6 +21,9 @@
 #include "utils.h"
 #include "gzstream/gzstream.h"
 #include "ParseEntireEPOBlock.h"
+#include "ParseEntireEPOBlockRelax.h"
+
+// #define RELAX
 
 using namespace std;
 
@@ -33,8 +36,8 @@ bool cmdAlignBlocks (alignmentBlock i,alignmentBlock j) { return (i.start<j.star
 
 int main (int argc, char *argv[]) {
 
-    string usage=string(""+string(argv[0])+" options [hsa_emf.index] [fasta index] [name chr]"+
-			"\nThis program an EPO alignment index and fasta index\n"+
+    string usage=string(""+string(argv[0])+" [hsa_emf.index] [fasta index] [name chr]"+
+			"\nThis program takes as input an EPO alignment index and fasta index\n"+
 			"for the genome and produces a tab delimited output\n");
 			
     if(argc == 1 ||
@@ -43,6 +46,8 @@ int main (int argc, char *argv[]) {
 	cerr << "Usage "<<usage<<endl;
 	return 1;       
     }
+
+
 
     string epoIndex      =argv[argc-3];
 
@@ -137,13 +142,22 @@ int main (int argc, char *argv[]) {
 	    cerr<<"chrindex  "<<chrIndex<<endl;
 	    cerr<<"chrname   "<<chrName<<endl;
 	    cerr<<"indexAlignVector   "<<indexAlignVector<<endl;
-
+	    
+#ifdef RELAX
+	    chrIndex=parseEntireEPOBlockRelax(epoIndexPath+"/"+alignmentBlocks[indexAlignVector].filename,
+					      alignmentBlocks[indexAlignVector].line,					 
+					      chrIndex,
+					      alignmentBlocks[indexAlignVector].start,
+					      alignmentBlocks[indexAlignVector].end,
+					      chrName);
+#else
 	    chrIndex=parseEntireEPOBlock(epoIndexPath+"/"+alignmentBlocks[indexAlignVector].filename,
 					 alignmentBlocks[indexAlignVector].line,					 
 					 chrIndex,
 					 alignmentBlocks[indexAlignVector].start,
 					 alignmentBlocks[indexAlignVector].end,
 					 chrName);
+#endif  
 	    //indexAlignVector=min(indexAlignVector+1,int(alignmentBlocks.size()-1));
 	    if(chrIndex != alignmentBlocks[indexAlignVector].end){
 		cerr<<"The EPO does not contain the right number of nucleotides"<<endl;
