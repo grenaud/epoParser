@@ -25,7 +25,7 @@
    @return Last chromosome position printed on the screen
 */
 
-unsigned int parseEntireEPOBlock(string inFile,unsigned int lineSought,unsigned int chrPos,unsigned int chrStart,unsigned int chrEnd,string chrName){
+pair<unsigned int,bool> parseEntireEPOBlock(string inFile,unsigned int lineSought,unsigned int chrPos,unsigned int chrStart,unsigned int chrEnd,string chrName){
      // ;//= "/mnt/expressions/martin/sequence_db/epo/epo_6_primate_v64/Compara.6_primates_EPO.chrX_1.emf.gz";
      // ; //=1000022;
      // ; //=5039413;
@@ -75,7 +75,7 @@ unsigned int parseEntireEPOBlock(string inFile,unsigned int lineSought,unsigned 
 			}
 
 			if( indexHuman==-1 && starsWith(headerLines[i],speciesNameHuman) ){
-			    vector<string> fields = allTokens(headerLines[i]," ");
+			    vector<string> fields = allTokens(headerLines[i],' ');
 			    
 
 			    if(             fields[1] == chrName  &&
@@ -253,5 +253,8 @@ unsigned int parseEntireEPOBlock(string inFile,unsigned int lineSought,unsigned 
 	cerr<<"The end was not equal to the iterator over the chromsome length"<<endl;
 	exit(1);
     }
-    return chrPos;
+
+    pair<unsigned int,bool> toReturn  (chrPos,validBlock);
+    
+    return toReturn;
 }

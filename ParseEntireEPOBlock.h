@@ -47,9 +47,7 @@ typedef struct {
 } alignmentBlock;
 
 
-
-unsigned int parseEntireEPOBlock(string inFile,unsigned int lineSought,unsigned int chrPos,unsigned int chrStart,unsigned int chrEnd,string chrName);
-
+pair<unsigned int,bool>  parseEntireEPOBlock(string inFile,unsigned int lineSought,unsigned int chrPos,unsigned int chrStart,unsigned int chrEnd,string chrName);
 /* void  printsnpLine(snpLine & toPrint); */
 /* void  printEmptyLine(string chrName,unsigned int chrPos); */
 /* void  processLinesEPO(vector<snpLine> &  previousLines,snpLine & toPrint); */

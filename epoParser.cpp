@@ -72,7 +72,7 @@ int main (int argc, char *argv[]) {
     myFile.open(fastaIndex.c_str(), ios::in);
     if (myFile.is_open()){
 	while ( getline (myFile,line)){
-	    vector<string> fields = allTokens(line,"\t");
+	    vector<string> fields = allTokens(line,'\t');
 	    //cout<<fields[0]<<endl;
 	    name2Length[fields[0]]=string2uint(fields[1]);
 	}
@@ -90,7 +90,7 @@ int main (int argc, char *argv[]) {
     myFile.open(epoIndex.c_str(), ios::in);
     if (myFile.is_open()){
 	while ( getline (myFile,line)){
-	    vector<string> fields = allTokens(line,"\t");
+	    vector<string> fields = allTokens(line,'\t');
 	    if( fields[0] == chrName ){
 		alignmentBlock toadd;
 		toadd.start    = string2uint(fields[1])+1;
@@ -108,14 +108,14 @@ int main (int argc, char *argv[]) {
     myFile.close();
 
     sort (alignmentBlocks.begin(), alignmentBlocks.end(), cmdAlignBlocks); 
-    for(int i=0;i<alignmentBlocks.size();i++){
+    for(unsigned int i=0;i<alignmentBlocks.size();i++){
     	cerr<<i<<alignmentBlocks[i].start<<"\t"
     	    <<alignmentBlocks[i].end<<"\t"
     	    <<alignmentBlocks[i].filename<<"\t"
     	    <<alignmentBlocks[i].line<<"\n";
     }
 
-    for(int i=0;i<(alignmentBlocks.size()-1);i++){
+    for(unsigned int i=0;i<(alignmentBlocks.size()-1);i++){
 	if(alignmentBlocks[i+1].start<alignmentBlocks[i].end){
 	    cerr << "Start ("<<alignmentBlocks[i+1].start<<") greater than end ("<<alignmentBlocks[i].end<<") of next  "<<endl;	   
 	    return 1;       
@@ -125,8 +125,12 @@ int main (int argc, char *argv[]) {
     //MAIN LOOP
     int indexAlignVector=0;
     bool noMoreBlocks=false;
+    bool validBlock=false;
+    unsigned int totalBpValid=0;
+    unsigned int lastBP=0;
+
     for(unsigned int chrIndex=1;
-	chrIndex<name2Length[chrName];
+	chrIndex<=name2Length[chrName];
 	chrIndex++){
 
 	if(!noMoreBlocks && chrIndex>=alignmentBlocks[indexAlignVector].start){
@@ -144,20 +148,32 @@ int main (int argc, char *argv[]) {
 	    cerr<<"indexAlignVector   "<<indexAlignVector<<endl;
 	    
 #ifdef RELAX
-	    chrIndex=parseEntireEPOBlockRelax(epoIndexPath+"/"+alignmentBlocks[indexAlignVector].filename,
-					      alignmentBlocks[indexAlignVector].line,					 
-					      chrIndex,
-					      alignmentBlocks[indexAlignVector].start,
-					      alignmentBlocks[indexAlignVector].end,
-					      chrName);
+	    pair<unsigned int,bool> tempRes=parseEntireEPOBlockRelax(epoIndexPath+"/"+alignmentBlocks[indexAlignVector].filename,
+								     alignmentBlocks[indexAlignVector].line,					 
+								     chrIndex,
+								     alignmentBlocks[indexAlignVector].start,
+								     alignmentBlocks[indexAlignVector].end,
+								     chrName);
+	    chrIndex   = tempRes.first;
+	    validBlock = tempRes.second;
 #else
-	    chrIndex=parseEntireEPOBlock(epoIndexPath+"/"+alignmentBlocks[indexAlignVector].filename,
-					 alignmentBlocks[indexAlignVector].line,					 
-					 chrIndex,
-					 alignmentBlocks[indexAlignVector].start,
-					 alignmentBlocks[indexAlignVector].end,
-					 chrName);
+
+	    pair<unsigned int,bool> tempRes=parseEntireEPOBlock(epoIndexPath+"/"+alignmentBlocks[indexAlignVector].filename,
+						      alignmentBlocks[indexAlignVector].line,					 
+						      chrIndex,
+						      alignmentBlocks[indexAlignVector].start,
+						      alignmentBlocks[indexAlignVector].end,
+						      chrName);
+
+	    chrIndex   = tempRes.first;
+	    validBlock = tempRes.second;
+
 #endif  
+
+	    if(validBlock){
+		totalBpValid+=(alignmentBlocks[indexAlignVector].end-alignmentBlocks[indexAlignVector].start);
+	    }
+
 	    //indexAlignVector=min(indexAlignVector+1,int(alignmentBlocks.size()-1));
 	    if(chrIndex != alignmentBlocks[indexAlignVector].end){
 		cerr<<"The EPO does not contain the right number of nucleotides"<<endl;
@@ -167,10 +183,12 @@ int main (int argc, char *argv[]) {
 	    if(indexAlignVector == int(alignmentBlocks.size())){ //encountered last block
 		noMoreBlocks=true;
 	    }
-	    
+
+	    lastBP=chrIndex;	    
 	}else{
 	    printEmptyLine(chrName,chrIndex);				
 	}
+
     }
 
 
@@ -181,8 +199,10 @@ int main (int argc, char *argv[]) {
     // 			chrName);
 
 
-
+    cerr<<"Kept "<<totalBpValid<<" out of "<<name2Length[chrName]<< " ("<<(100.0*double(totalBpValid )/double(name2Length[chrName]))<<"%) "<<endl;
+    cerr<<"Last good coordinate "<<lastBP<<" out of "<<name2Length[chrName]<<endl;
     cerr<<"Terminated gracefully"<<endl;
+
     
     return 0;
 }

@@ -41,8 +41,7 @@ using namespace std;
 /* } alignmentBlock; */
 
 
-
-unsigned int parseEntireEPOBlockRelax(string inFile,unsigned int lineSought,unsigned int chrPos,unsigned int chrStart,unsigned int chrEnd,string chrName);
+pair<unsigned int,bool> parseEntireEPOBlockRelax(string inFile,unsigned int lineSought,unsigned int chrPos,unsigned int chrStart,unsigned int chrEnd,string chrName);
 
 /* void  printsnpLine(snpLine & toPrint); */
 /* void  printEmptyLine(string chrName,unsigned int chrPos); */
