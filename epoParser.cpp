@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "utils.h"
+#include "libgab.h"
 #include "gzstream/gzstream.h"
 #include "ParseEntireEPOBlock.h"
 #include "ParseEntireEPOBlockRelax.h"
