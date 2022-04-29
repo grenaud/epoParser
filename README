@@ -11,8 +11,20 @@ The EPO  (Enredo, Pecan, Ortheus) alignments are a set of genome-wide alignments
 epoParser aims at parsing the high confidence stretches of the EPO alignments and producing a tab delimited output which can be indexed by tabix for quick retrieval of a desired position. The various columns contain the human, ancestral states and various other great apes as well as flags for putative CpG sites and high confidence regions.
 
 Use:
-./epoParser 
-./epoParser options [hsa_emf.index] [fasta index] [name chr]
+First, download the EPO alignment. As of writing, they can be found here:
+http://ftp.ensembl.org/pub/current_emf/ensembl-compara/multiple_alignments/10_primates.epo/
+
+Pay attention to the genome builds in the README in the Ensembl directory.
+
+Then, build the index hsa_emf.index with:
+
+    mkdir index/
+    python2.7 /home/ctools/epoParser/EMFSplitIndex.py -o index/
+
+Then call epoParser.
+
+    cd index/
+    epoParser options [hsa_emf.index] [fasta index] [name chr]
 
 The [hsa_emf.index] is the human-specific index provided with the EPO alignment. 
 The [fasta index] is the index for the human genome (created by samtools faidx)
@@ -22,15 +34,15 @@ Be sure to be consitent with the chromosome naming.
 
 
 Installation:
-tar xvfz gzstream.tgz
-cd gzstream
-make 
-cd ..
-
-make
+    tar xvfz gzstream.tgz
+    cd gzstream
+    make 
+    cd ..
+    make
 
 
 
 requires
 gzstream:
 www.cs.unc.edu/Research/compgeom/gzstream/
+libgab: https://github.com/grenaud/libgab/
